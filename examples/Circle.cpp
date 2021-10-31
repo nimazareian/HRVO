@@ -46,33 +46,72 @@
 #endif
 
 #include <HRVO.h>
+#include <iostream>
 
 using namespace hrvo;
 
 const float HRVO_TWO_PI = 6.283185307179586f;
+const int NUM_ROBOTS = 20;
 
 int main()
 {
 	Simulator simulator;
 
-	simulator.setTimeStep(0.25f);
-	simulator.setAgentDefaults(15.0f, 10, 1.5f, 1.5f, 1.0f, 2.0f);
+	simulator.setTimeStep(1.f/30);
+	simulator.setAgentDefaults(9.f, 10, 0.09f * 1.1f, 0.09f * 1.1f, 2.0f, 2.0f);
 
-	for (std::size_t i = 0; i < 250; ++i) {
-		const Vector2 position = 200.0f * Vector2(std::cos(0.004f * i * HRVO_TWO_PI), std::sin(0.004f * i * HRVO_TWO_PI));
+//	for (std::size_t i = 0; i < NUM_ROBOTS; ++i) {
+//		const Vector2 position = 20.0f * Vector2(std::cos(0.004f * i * HRVO_TWO_PI), std::sin(0.004f * i * HRVO_TWO_PI));
+//		simulator.addAgent(position, simulator.addGoal(-position));
+//	}
+    float robot_starting_angle_dif = HRVO_TWO_PI / NUM_ROBOTS;
+    float circle_radius = 2.f;
+    for (std::size_t i = 0; i < NUM_ROBOTS; ++i) {
+		const Vector2 position = circle_radius * Vector2(std::cos(i * robot_starting_angle_dif), std::sin(i * robot_starting_angle_dif));
 		simulator.addAgent(position, simulator.addGoal(-position));
 	}
 
+    // Column name
+    for (int robot_id = 0; robot_id < NUM_ROBOTS; ++robot_id) {
+        std::cout << "robot " << robot_id;// << " x" << ",robot " << robot_id << " y";
+        if (robot_id != NUM_ROBOTS - 1)
+        {
+            std::cout << ",";
+        }
+    }
+    std::cout << std::endl;
+
+    // Position Data
+//    int curr_frame = 0;
 	do {
-#if HRVO_OUTPUT_TIME_AND_POSITIONS
-		std::cout << simulator.getGlobalTime();
+//#if HRVO_OUTPUT_TIME_AND_POSITIONS
+//		std::cout << simulator.getGlobalTime();
+//        std::cout << curr_frame;
+//        curr_frame++;
 
-		for (std::size_t i = 0; i < simulator.getNumAgents(); ++i) {
-			std::cout << " " << simulator.getAgentPosition(i);
-		}
+        for (int j = 0; j < 2; j++)
+        {
+            for (std::size_t i = 0; i < simulator.getNumAgents(); ++i)
+            {
+                Vector2 curr_robot_pos = simulator.getAgentPosition(i);
+                if (j == 0)
+                {
+                    std::cout << curr_robot_pos.getX();
+                }
+                else
+                {
+                    std::cout << curr_robot_pos.getY();
+                }
 
-		std::cout << std::endl;
-#endif /* HRVO_OUTPUT_TIME_AND_POSITIONS */
+                if (i != simulator.getNumAgents() - 1)
+                {
+                    std::cout << ",";
+                }
+            }
+            std::cout << std::endl;
+        }
+
+//#endif /* HRVO_OUTPUT_TIME_AND_POSITIONS */
 
 		simulator.doStep();
 	}

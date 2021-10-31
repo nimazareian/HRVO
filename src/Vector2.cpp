@@ -42,7 +42,7 @@
 namespace hrvo {
 	std::ostream &operator<<(std::ostream &stream, const Vector2 &vector)
 	{
-		stream << vector.getX() << " " << vector.getY();
+		stream << vector.getX() << "," << vector.getY();
 
 		return stream;
 	}
