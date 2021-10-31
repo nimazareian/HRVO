@@ -14,12 +14,14 @@ div_a_field_length = 12.0
 def animate_robots(robot_pos_x_df, robot_pos_y_df, gif_output_file=None):
     num_frames = len(robot_pos_x_df.index)
     num_robots = len(robot_pos_x_df.columns)
+    default_line_alpha = 0.5
     is_paused = False
 
     def setup_plot():
         """Initial drawing of the scatter plot."""
         ax.axis([-3, 3, -3, 3])
 
+        # TODO: Make robot and tracking line the same color
         for robot in robot_list:
             ax.add_patch(robot)
 
@@ -48,6 +50,17 @@ def animate_robots(robot_pos_x_df, robot_pos_y_df, gif_output_file=None):
             robot_anim.pause()
         is_paused = not is_paused
 
+    def on_plot_hover(event):
+        # Iterating over each data member plotted
+        for line in line_list:
+            # Searching which data member corresponds to current mouse position
+            if line.contains(event)[0]:
+                line.set_alpha(1.0)
+            else:
+                line.set_alpha(default_line_alpha)
+
+
+
     # set up plot
     fig = plt.figure()
     ax = fig.add_subplot(111, autoscale_on=False, xlim=(-3, 3), ylim=(-3, 3))
@@ -61,11 +74,15 @@ def animate_robots(robot_pos_x_df, robot_pos_y_df, gif_output_file=None):
     for _ in range(num_robots):
         robot = Circle((0, 0), robot_radius, facecolor='aqua', edgecolor='black')
         robot_list.append(robot)
-        lobj = ax.plot([], [], linestyle='--', alpha=0.5)[0]
+        lobj = ax.plot([], [], linestyle='--', alpha=default_line_alpha)[0]
         line_list.append(lobj)
 
     # Start/Stop on click
     fig.canvas.mpl_connect('button_press_event', toggle_pause)
+
+    # TODO: Allow highlighting after animation is over
+    # Highlight tracked line on hover
+    fig.canvas.mpl_connect('motion_notify_event', on_plot_hover)
 
     # Animate
     robot_anim = FuncAnimation(fig, func=update, interval=frame_length_ms / play_back_speed,
