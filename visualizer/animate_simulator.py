@@ -14,6 +14,7 @@ div_a_field_length = 12.0
 def animate_robots(robot_pos_x_df, robot_pos_y_df, gif_output_file=None):
     num_frames = len(robot_pos_x_df.index)
     num_robots = len(robot_pos_x_df.columns)
+    is_paused = False
 
     def setup_plot():
         """Initial drawing of the scatter plot."""
@@ -39,6 +40,14 @@ def animate_robots(robot_pos_x_df, robot_pos_y_df, gif_output_file=None):
 
         return robot_list + line_list
 
+    def toggle_pause(event):
+        nonlocal is_paused
+        if is_paused:
+            robot_anim.resume()
+        else:
+            robot_anim.pause()
+        is_paused = not is_paused
+
     # set up plot
     fig = plt.figure()
     ax = fig.add_subplot(111, autoscale_on=False, xlim=(-3, 3), ylim=(-3, 3))
@@ -55,9 +64,12 @@ def animate_robots(robot_pos_x_df, robot_pos_y_df, gif_output_file=None):
         lobj = ax.plot([], [], linestyle='--', alpha=0.5)[0]
         line_list.append(lobj)
 
+    # Start/Stop on click
+    fig.canvas.mpl_connect('button_press_event', toggle_pause)
+
     # Animate
     robot_anim = FuncAnimation(fig, func=update, interval=frame_length_ms / play_back_speed,
-                               init_func=setup_plot, frames=num_frames, blit=True)
+                               init_func=setup_plot, frames=num_frames, blit=True, repeat=False)
     plt.show()
 
     if gif_output_file is not None:
