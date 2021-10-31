@@ -6,40 +6,38 @@ import pandas as pd
 # Constants
 robot_radius = 0.09
 frame_length_ms = 1000 / 30
-play_back_speed = 0.25
+play_back_speed = 1.0
 div_a_field_width = 9.0
 div_a_field_length = 12.0
 
 
-def animate_robots(robot_pos_df, gif_output_file=None):
-    robot_pos_x_df = robot_pos_df.iloc[::2, :]
-    robot_pos_y_df = robot_pos_df.iloc[1::2, :]
-    num_frames = int(len(robot_pos_df.index) / 2)
-    num_robots = len(robot_pos_df.columns)
+def animate_robots(robot_pos_x_df, robot_pos_y_df, gif_output_file=None):
+    num_frames = len(robot_pos_x_df.index)
+    num_robots = len(robot_pos_x_df.columns)
 
     def setup_plot():
         """Initial drawing of the scatter plot."""
         ax.axis([-3, 3, -3, 3])
 
-        for obstacle in obstacle_list:
-            ax.add_patch(obstacle)
+        for robot in robot_list:
+            ax.add_patch(robot)
 
         for line in line_list:
             line.set_data([], [])
 
-        return line_list + obstacle_list
+        return robot_list + line_list
 
     def update(i):
-        """Update the scatter plot."""
-        # TODO: Add line that shows robot path
-        for j in range(len(obstacle_list)):
-            obstacle_list[j].center = (robot_pos_x_df.iat[i, j], robot_pos_y_df.iat[i, j])#(robot_pos_df.iat[2 * i, j], robot_pos_df.iat[2 * i + 1, j])
+        """Update plot for new frame"""
+        # Update robot positions
+        for j in range(len(robot_list)):
+            robot_list[j].center = (robot_pos_x_df.iat[i, j], robot_pos_y_df.iat[i, j])
 
-        # line.set_data()
+        # Update lines tracking the robot movement
         for robot_id, line in enumerate(line_list):
             line.set_data(robot_pos_x_df.iloc[:i, robot_id], robot_pos_y_df.iloc[:i, robot_id])
 
-        return line_list + obstacle_list
+        return robot_list + line_list
 
     # set up plot
     fig = plt.figure()
@@ -49,12 +47,12 @@ def animate_robots(robot_pos_df, gif_output_file=None):
     line, = ax.plot([], [], '--r')
 
     # set-up robot circles
-    obstacle_list = []
+    robot_list = []
     line_list = []
     for _ in range(num_robots):
-        obstacle = Circle((0, 0), robot_radius, facecolor='aqua', edgecolor='black')
-        obstacle_list.append(obstacle)
-        lobj = ax.plot([], [])[0]
+        robot = Circle((0, 0), robot_radius, facecolor='aqua', edgecolor='black')
+        robot_list.append(robot)
+        lobj = ax.plot([], [], linestyle='--', alpha=0.5)[0]
         line_list.append(lobj)
 
     # Animate
@@ -69,5 +67,6 @@ def animate_robots(robot_pos_df, gif_output_file=None):
 
 robot_pos_path = '../robot_pos_2.2.csv'
 df = pd.read_csv(robot_pos_path, skiprows=3)
-
-animate_robots(df, 'robot_anim_2.2.gif')
+x_df = df.iloc[::2, :]
+y_df = df.iloc[1::2, :]
+animate_robots(x_df, y_df, 'robot_anim_2.2.gif')
