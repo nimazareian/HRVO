@@ -51,65 +51,90 @@
 using namespace hrvo;
 
 const float HRVO_TWO_PI = 6.283185307179586f;
-const int NUM_ROBOTS = 20;
+const int NUM_ROBOTS = 25;
+const float ROBOT_RADIUS = 0.09f;
+const float RADIUS_SCALE = 2.0f;
 
 int main()
 {
 	Simulator simulator;
 
 	simulator.setTimeStep(1.f/30);
-	simulator.setAgentDefaults(9.f, 10, 0.09f * 1.1f, 0.09f * 1.1f, 2.0f, 2.0f);
+	simulator.setAgentDefaults(1.f, 10, ROBOT_RADIUS * RADIUS_SCALE, ROBOT_RADIUS * RADIUS_SCALE, 2.0f, 2.0f);
 
-//	for (std::size_t i = 0; i < NUM_ROBOTS; ++i) {
-//		const Vector2 position = 20.0f * Vector2(std::cos(0.004f * i * HRVO_TWO_PI), std::sin(0.004f * i * HRVO_TWO_PI));
-//		simulator.addAgent(position, simulator.addGoal(-position));
-//	}
     float robot_starting_angle_dif = HRVO_TWO_PI / NUM_ROBOTS;
-    float circle_radius = 2.f;
+    float circle_radius = float(NUM_ROBOTS) / 10;
+    
+    simulator.addAgent(Vector2(0.f, 0.f), simulator.addGoal(Vector2(0.f, 0.f)));
     for (std::size_t i = 0; i < NUM_ROBOTS; ++i) {
 		const Vector2 position = circle_radius * Vector2(std::cos(i * robot_starting_angle_dif), std::sin(i * robot_starting_angle_dif));
 		simulator.addAgent(position, simulator.addGoal(-position));
 	}
 
     // Column name
-    for (int robot_id = 0; robot_id < NUM_ROBOTS; ++robot_id) {
-        std::cout << "robot " << robot_id;// << " x" << ",robot " << robot_id << " y";
-        if (robot_id != NUM_ROBOTS - 1)
-        {
-            std::cout << ",";
-        }
-    }
-    std::cout << std::endl;
+    // for (int robot_id = 0; robot_id < NUM_ROBOTS + 1; ++robot_id) {
+    //     std::cout << "robot " << robot_id;
+    //     if (robot_id != NUM_ROBOTS - 1)
+    //     {
+    //         std::cout << ",";
+    //     }
+    // }
+    // std::cout << std::endl;
+    std::cout << "frame,robot_id,x,y,has_collided" << std::endl;
 
-    // Position Data
-//    int curr_frame = 0;
+    unsigned int frame = 0;
 	do {
 //#if HRVO_OUTPUT_TIME_AND_POSITIONS
 //		std::cout << simulator.getGlobalTime();
-//        std::cout << curr_frame;
-//        curr_frame++;
-
-        for (int j = 0; j < 2; j++)
+        unsigned int num_robots = simulator.getNumAgents();
+        for (unsigned int robot_id = 0; robot_id < num_robots; robot_id++)
         {
-            for (std::size_t i = 0; i < simulator.getNumAgents(); ++i)
-            {
-                Vector2 curr_robot_pos = simulator.getAgentPosition(i);
-                if (j == 0)
-                {
-                    std::cout << curr_robot_pos.getX();
-                }
-                else
-                {
-                    std::cout << curr_robot_pos.getY();
-                }
+            Vector2 curr_robot_pos = simulator.getAgentPosition(robot_id);
+            float curr_robot_rad = ROBOT_RADIUS; // simulator.getAgentRadius(robot_id);
 
-                if (i != simulator.getNumAgents() - 1)
+            // Check for collision with other robots
+            bool has_collided = false;
+            for (unsigned int other_robot_id = 0; other_robot_id < num_robots; other_robot_id++)
+            {
+                Vector2 other_robot_pos = simulator.getAgentPosition(other_robot_id);
+                float other_robot_rad = ROBOT_RADIUS; // simulator.getAgentRadius(other_robot_id);
+                if (robot_id != other_robot_id)
                 {
-                    std::cout << ",";
+                    if (absSq(curr_robot_pos - other_robot_pos) < std::pow(curr_robot_rad + other_robot_rad, 2.f))
+                    {
+                        has_collided = true;
+                        break;
+                    } 
                 }
+                
             }
-            std::cout << std::endl;
+            
+            std::cout << frame << "," << robot_id << "," << curr_robot_pos.getX() << "," << curr_robot_pos.getY() << "," << int(has_collided) << std::endl;
         }
+        frame++;
+        
+
+
+        // for (int j = 0; j < 2; j++)
+        // {
+        //     for (std::size_t i = 0; i < simulator.getNumAgents(); ++i)
+        //     {
+        //         if (j == 0)
+        //         {
+        //             std::cout << curr_robot_pos.getX();
+        //         }
+        //         else
+        //         {
+        //             std::cout << curr_robot_pos.getY();
+        //         }
+
+        //         if (i != simulator.getNumAgents() - 1)
+        //         {
+        //             std::cout << ",";
+        //         }
+        //     }
+        //     std::cout << std::endl;
+        // }
 
 //#endif /* HRVO_OUTPUT_TIME_AND_POSITIONS */
 
