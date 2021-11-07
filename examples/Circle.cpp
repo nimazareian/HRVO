@@ -60,7 +60,10 @@ int main()
 	Simulator simulator;
 
 	simulator.setTimeStep(1.f/30);
-	simulator.setAgentDefaults(1.f, 10, ROBOT_RADIUS * RADIUS_SCALE, ROBOT_RADIUS * RADIUS_SCALE, 2.0f, 2.0f);
+	simulator.setAgentDefaults(1.f, 10, ROBOT_RADIUS * RADIUS_SCALE, ROBOT_RADIUS * RADIUS_SCALE, /*prefSpeed=*/1.5f, /*maxSpeed=4.825f*/2.f, /*uncertaintyOffset=*/0.f, /*maxAccel=3.28f*/ 1000000.1f);
+
+    // TODO: Can use Agent.SetAgentRadius to set custom radius for robots.
+    //       Could have a randomly assigned radius with in a range
 
     /** Add robots around circle with one in the center **/
     // float robot_starting_angle_dif = HRVO_TWO_PI / NUM_ROBOTS;
@@ -72,7 +75,7 @@ int main()
 	// }
 
     /** Add robots in a vertical line where they all have to move down **/
-    const Vector2 goal_offset = Vector2(0.f, -4.f);
+    const Vector2 goal_offset = Vector2(0.f, -6.f);
     for (std::size_t i = 0; i < NUM_ROBOTS; ++i) {
 		const Vector2 position = Vector2(0.f, static_cast<float>(i) / 5);
 		simulator.addAgent(position, simulator.addGoal(position + goal_offset));
@@ -95,7 +98,7 @@ int main()
             float curr_robot_rad = ROBOT_RADIUS;
 
             // Check for collision with other robots
-            bool has_collided = false;
+            int has_collided = -1;
             for (unsigned int other_robot_id = 0; other_robot_id < num_robots; other_robot_id++)
             {
                 Vector2 other_robot_pos = simulator.getAgentPosition(other_robot_id);
@@ -104,7 +107,7 @@ int main()
                 {
                     if (absSq(curr_robot_pos - other_robot_pos) < std::pow(curr_robot_rad + other_robot_rad, 2.f))
                     {
-                        has_collided = true;
+                        has_collided = other_robot_id;
                         break;
                     } 
                 }
@@ -134,7 +137,7 @@ int main()
                 prev_y_pos_arr[robot_id] = curr_y_pos;
             }
             
-            std::cout << frame << "," << time << "," << robot_id << "," << curr_robot_pos.getX() << "," << curr_robot_pos.getY() << "," << velocity_x << "," << velocity_y << "," << speed << "," << int(has_collided) << std::endl;
+            std::cout << frame << "," << time << "," << robot_id << "," << curr_robot_pos.getX() << "," << curr_robot_pos.getY() << "," << velocity_x << "," << velocity_y << "," << speed << "," << has_collided << std::endl;
         }
         frame++;
         prev_frame_time = time;

@@ -50,9 +50,19 @@ def animate_robots(robot_pos_df, gif_output_file=None):
         for robot_id in range(len(robot_list)):
             robot = robot_pos_df[(robot_pos_df['robot_id'] == robot_id) & (robot_pos_df['frame'] == frame)]
             robot_list[robot_id].center = (float(robot['x'].head()), float(robot['y'].head()))
+
             # Update robot color if it collides with another robot
-            if (robot['has_collided'] > 0).bool():
+            other_robot_id = int(robot['has_collided'])
+            if other_robot_id != -1:
+                print(f'went into for loop with other robot {other_robot_id}\n{robot}')
                 robot_list[robot_id].set_facecolor(collided_robot_color)
+
+                if other_robot_id > robot_id:
+                    other_robot = robot_pos_df[(robot_pos_df['robot_id'] == other_robot_id) & (robot_pos_df['frame'] == frame)]
+                    relative_vel_x = float(other_robot['velocity_x']) - float(robot['velocity_x']) 
+                    relative_vel_y = float(other_robot['velocity_y']) - float(robot['velocity_y'])
+                    relative_speed = pow(pow(relative_vel_x, 2) + pow(relative_vel_y, 2), 0.5)
+                    print(f'robot {robot_id} and robot {other_robot_id} have collided with a relative velocity of {relative_speed}m/s')
             else:
                 robot_list[robot_id].set_facecolor(default_robot_color)
 
@@ -102,7 +112,7 @@ def animate_robots(robot_pos_df, gif_output_file=None):
     # Start/Stop on click
     fig.canvas.mpl_connect('button_press_event', toggle_pause)
 
-    # TODO: Allow highlighting after animation is over
+    # TODO: Allow highlighting after animation is over. Can achieve this by not passing frames to FunAnimation
     # Highlight tracked line on hover
     fig.canvas.mpl_connect('motion_notify_event', on_plot_hover)
 
@@ -114,11 +124,13 @@ def animate_robots(robot_pos_df, gif_output_file=None):
 
     if gif_output_file is not None:
         # save gif
+        print('==============================================')
+        print(f'Saving gif of robots to {gif_output_file}...')
         robot_anim.save(gif_output_file, writer=PillowWriter(fps=frame_rate))
         print(f'Saved gif of robots to {gif_output_file}')
 
 
-file_name = '2_robots_2.0_rad'
+file_name = '5_robots_in_line'
 file_location = f'visualizer/data/{file_name}.csv'
 df = pd.read_csv(file_location, skiprows=3)
 animate_robots(df, f'visualizer/gif/{file_name}.gif')
