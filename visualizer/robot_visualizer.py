@@ -7,7 +7,7 @@ import pandas as pd
 robot_radius = 0.09
 frame_rate = 30
 frame_length_ms = 1000.0 / frame_rate
-play_back_speed = 0.25
+play_back_speed = 1.0
 div_a_field_width = 9.0
 div_a_field_length = 12.0
 default_robot_color = 'royalblue'
@@ -93,7 +93,7 @@ def animate_robots(robot_pos_df, gif_output_file=None):
 
     # set up plot
     fig = plt.figure()
-    fig.suptitle('26 robots with 2.0x radius')
+    fig.suptitle('5 robots in a line w/ 2021 kinematics')
     ax = fig.add_subplot(111, autoscale_on=False, xlim=(min_robot_x_pos - x_offset, max_robot_x_pos + x_offset), 
                                                   ylim=(min_robot_y_pos - y_offset, max_robot_y_pos + y_offset))
     ax.set_aspect('equal')
@@ -130,7 +130,7 @@ def animate_robots(robot_pos_df, gif_output_file=None):
         print(f'Saved gif of robots to {gif_output_file}')
 
 
-file_name = '5_robots_in_line'
+file_name = '2_robot_pos'
 file_location = f'visualizer/data/{file_name}.csv'
 df = pd.read_csv(file_location, skiprows=3)
 animate_robots(df, f'visualizer/gif/{file_name}.gif')

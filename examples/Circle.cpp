@@ -53,14 +53,14 @@ using namespace hrvo;
 const float HRVO_TWO_PI = 6.283185307179586f;
 const int NUM_ROBOTS = 5;
 const float ROBOT_RADIUS = 0.09f;
-const float RADIUS_SCALE = 2.0f;
+const float RADIUS_SCALE = 1.0f;
 
 int main()
 {
 	Simulator simulator;
 
 	simulator.setTimeStep(1.f/30);
-	simulator.setAgentDefaults(1.f, 10, ROBOT_RADIUS * RADIUS_SCALE, ROBOT_RADIUS * RADIUS_SCALE, /*prefSpeed=*/1.5f, /*maxSpeed=4.825f*/2.f, /*uncertaintyOffset=*/0.f, /*maxAccel=3.28f*/ 1000000.1f);
+	simulator.setAgentDefaults(1.f, 10, ROBOT_RADIUS * RADIUS_SCALE, ROBOT_RADIUS * RADIUS_SCALE, /*prefSpeed=*/3.5f, /*maxSpeed=*/4.825f, /*uncertaintyOffset=*/0.f, /*maxAccel=*/3.28f);
 
     // TODO: Can use Agent.SetAgentRadius to set custom radius for robots.
     //       Could have a randomly assigned radius with in a range
@@ -76,13 +76,13 @@ int main()
 
     /** Add robots in a vertical line where they all have to move down **/
     const Vector2 goal_offset = Vector2(0.f, -6.f);
+    const Vector2 robot_offset = Vector2(0.f, -ROBOT_RADIUS * 2.5f);
     for (std::size_t i = 0; i < NUM_ROBOTS; ++i) {
-		const Vector2 position = Vector2(0.f, static_cast<float>(i) / 5);
+		const Vector2 position = static_cast<float>(i) * robot_offset;
 		simulator.addAgent(position, simulator.addGoal(position + goal_offset));
 	}
 
     // Column Names
-    // TODO: Can add velocity_x,velocity_y,speed columns
     std::cout << "frame,time,robot_id,x,y,velocity_x,velocity_y,speed,has_collided" << std::endl;
 
     const unsigned int num_robots = simulator.getNumAgents();
