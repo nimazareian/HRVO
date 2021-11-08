@@ -93,7 +93,7 @@ def animate_robots(robot_pos_df, gif_output_file=None):
 
     # set up plot
     fig = plt.figure()
-    fig.suptitle('5 robots in a line w/ 2021 kinematics')
+    fig.suptitle('5 robots in a line w/ infinite acceleration')
     ax = fig.add_subplot(111, autoscale_on=False, xlim=(min_robot_x_pos - x_offset, max_robot_x_pos + x_offset), 
                                                   ylim=(min_robot_y_pos - y_offset, max_robot_y_pos + y_offset))
     ax.set_aspect('equal')
@@ -106,8 +106,8 @@ def animate_robots(robot_pos_df, gif_output_file=None):
     for _ in range(num_robots):
         robot = Circle((0, 0), robot_radius, facecolor='aqua', edgecolor='black')
         robot_list.append(robot)
-        lobj = ax.plot([], [], linestyle='--', alpha=default_line_alpha)[0]
-        line_list.append(lobj)
+        line_obj = ax.plot([], [], linestyle='--', alpha=default_line_alpha)[0]
+        line_list.append(line_obj)
 
     # Start/Stop on click
     fig.canvas.mpl_connect('button_press_event', toggle_pause)
