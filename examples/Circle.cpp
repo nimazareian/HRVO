@@ -35,15 +35,7 @@
  * \brief  Example with 250 agents navigating through a circular environment.
  */
 
-#ifndef HRVO_OUTPUT_TIME_AND_POSITIONS
-#define HRVO_OUTPUT_TIME_AND_POSITIONS 1
-#endif
-
 #include <cmath>
-
-#if HRVO_OUTPUT_TIME_AND_POSITIONS
-#include <iostream>
-#endif
 
 #include <HRVO.h>
 #include <iostream>
@@ -51,7 +43,7 @@
 using namespace hrvo;
 
 const float HRVO_TWO_PI = 6.283185307179586f;
-const int NUM_ROBOTS = 5;
+const int NUM_ROBOTS = 4;
 const float ROBOT_RADIUS = 0.09f;
 const float RADIUS_SCALE = 1.0f;
 
@@ -75,12 +67,48 @@ int main()
 	// }
 
     /** Add robots in a vertical line where they all have to move down **/
-    const Vector2 goal_offset = Vector2(0.f, -6.f);
+    // const Vector2 goal_offset = Vector2(0.f, -6.f);
+    // const Vector2 robot_offset = Vector2(0.f, -ROBOT_RADIUS * 2.5f);
+    // for (std::size_t i = 0; i < NUM_ROBOTS; ++i) {
+	// 	const Vector2 position = static_cast<float>(i) * robot_offset;
+	// 	simulator.addAgent(position, simulator.addGoal(position + goal_offset));
+	// }
+
+
+    /** Add robots in a rectangle (recreating div-B field) **/
+    float field_width = 9.f;
+    float field_height = 6.f;
+    float robot_offsets = 2.5 * ROBOT_RADIUS * RADIUS_SCALE;
+
+    // Setup robots    
+    const Vector2 goal_offset = Vector2(8.f, 0);
     const Vector2 robot_offset = Vector2(0.f, -ROBOT_RADIUS * 2.5f);
     for (std::size_t i = 0; i < NUM_ROBOTS; ++i) {
-		const Vector2 position = static_cast<float>(i) * robot_offset;
+		const Vector2 position = -1*(goal_offset / 2) + (static_cast<float>(i) * robot_offset);
 		simulator.addAgent(position, simulator.addGoal(position + goal_offset));
 	}
+
+    // Horizontal field lines
+    for (float x = -(field_width / 2); x <= (field_width / 2); x += robot_offsets)
+    {
+        for (float y : {-(field_height / 2), field_height / 2})
+        {
+            const Vector2 position(x, y);
+            simulator.addAgent(position, simulator.addGoal(position));
+            
+        }
+    }
+
+    // Vertical field lines
+    float max_y = (field_height / 2) - robot_offsets;
+    for (float y = -max_y; y <= max_y; y += robot_offsets)
+    {
+        for (float x : {-(field_width / 2), field_width / 2})
+        {
+            const Vector2 position(x, y);
+            simulator.addAgent(position, simulator.addGoal(position));
+        }
+    }
 
     // Column Names
     std::cout << "frame,time,robot_id,x,y,velocity_x,velocity_y,speed,has_collided" << std::endl;
@@ -143,7 +171,7 @@ int main()
         prev_frame_time = time;
 		simulator.doStep();
 	}
-	while (!simulator.haveReachedGoals());
+	while (prev_frame_time < 10.f); //!simulator.haveReachedGoals());
 
 	return 0;
 }

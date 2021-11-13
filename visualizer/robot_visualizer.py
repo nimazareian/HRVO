@@ -39,17 +39,20 @@ def animate_robots(robot_pos_df, gif_output_file=None):
         for line in line_list:
             line.set_data([], [])
 
-        return robot_list + line_list
+        return robot_list + line_list + [time_text] + [robot_id_text]
 
     def update(frame):
         """Update plot for new frame"""
         if frame >= num_frames:
-            return robot_list + line_list
+            return robot_list + line_list + [time_text] + [robot_id_text]
+
+        # Current frame, dataframe filter
+        curr_frame_df = robot_pos_df[robot_pos_df['frame'] == frame]
             
         # Update robot positions
         for robot_id in range(len(robot_list)):
-            robot = robot_pos_df[(robot_pos_df['robot_id'] == robot_id) & (robot_pos_df['frame'] == frame)]
-            robot_list[robot_id].center = (float(robot['x'].head()), float(robot['y'].head()))
+            robot = curr_frame_df[curr_frame_df['robot_id'] == robot_id]
+            robot_list[robot_id].center = (float(robot['x'].head(1)), float(robot['y'].head(1)))
 
             # Update robot color if it collides with another robot
             other_robot_id = int(robot['has_collided'])
@@ -58,7 +61,7 @@ def animate_robots(robot_pos_df, gif_output_file=None):
                 robot_list[robot_id].set_facecolor(collided_robot_color)
 
                 if other_robot_id > robot_id:
-                    other_robot = robot_pos_df[(robot_pos_df['robot_id'] == other_robot_id) & (robot_pos_df['frame'] == frame)]
+                    other_robot = curr_frame_df[curr_frame_df['robot_id'] == other_robot_id]
                     relative_vel_x = float(other_robot['velocity_x']) - float(robot['velocity_x']) 
                     relative_vel_y = float(other_robot['velocity_y']) - float(robot['velocity_y'])
                     relative_speed = pow(pow(relative_vel_x, 2) + pow(relative_vel_y, 2), 0.5)
@@ -72,7 +75,11 @@ def animate_robots(robot_pos_df, gif_output_file=None):
             robot_df = robots_grouped.get_group(robot_id)
             line.set_data(robot_df[robot_df['frame'] <= frame]['x'], robot_df[robot_df['frame'] <= frame]['y'])
 
-        return robot_list + line_list
+        # Update displayed time
+        curr_time = float(curr_frame_df['time'].head(1))
+        time_text.set_text(f'Time: {curr_time:.2f}sec')
+
+        return robot_list + line_list + [time_text] + [robot_id_text]
 
     def toggle_pause(event):
         nonlocal is_paused
@@ -84,10 +91,11 @@ def animate_robots(robot_pos_df, gif_output_file=None):
 
     def on_plot_hover(event):
         # Iterating over each data member plotted
-        for line in line_list:
+        for robot_id, line in enumerate(line_list):
             # Searching which data member corresponds to current mouse position
             if line.contains(event)[0]:
                 line.set_alpha(1.0)
+                robot_id_text.set_text(f'Robot {robot_id}')
             else:
                 line.set_alpha(default_line_alpha)
 
@@ -99,6 +107,9 @@ def animate_robots(robot_pos_df, gif_output_file=None):
     ax.set_aspect('equal')
     ax.grid()
     line, = ax.plot([], [], '--r')
+    # plt.subplots_adjust(left=0.3)
+    time_text = ax.text(0.5, 0.2, '', transform=plt.gcf().transFigure)
+    robot_id_text = ax.text(0.5, 0.1, '', transform=plt.gcf().transFigure)
 
     # set-up robot circles
     robot_list = []
@@ -130,7 +141,7 @@ def animate_robots(robot_pos_df, gif_output_file=None):
         print(f'Saved gif of robots to {gif_output_file}')
 
 
-file_name = '2_robot_pos'
+file_name = 'test_div_b_field_4_robots'
 file_location = f'visualizer/data/{file_name}.csv'
 df = pd.read_csv(file_location, skiprows=3)
 animate_robots(df, f'visualizer/gif/{file_name}.gif')
