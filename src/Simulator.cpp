@@ -327,6 +327,10 @@ namespace hrvo {
 		agents_[agentNo]->velocity_ = velocity;
 	}
 
+    Vector2 Simulator::getAgentPrefVelocity(std::size_t agentNo) const {
+        return agents_[agentNo]->prefVelocity_;
+    }
+
 #if HRVO_DIFFERENTIAL_DRIVE
 	void Simulator::setAgentWheelTrack(std::size_t agentNo, float wheelTrack)
 	{

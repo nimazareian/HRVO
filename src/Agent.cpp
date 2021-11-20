@@ -37,6 +37,7 @@
 
 #include "Agent.h"
 
+#include <iostream>
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -304,14 +305,43 @@ namespace hrvo {
 	void Agent::computePreferredVelocity()
 	{
 		const Vector2 goalPosition = simulator_->goals_[goalNo_]->position_;
-		const float distSqToGoal = absSq(goalPosition - position_);
+		const Vector2 distVectorToGoal = goalPosition - position_;
+		const float distToGoal = sqrt(sqr(distVectorToGoal.getX()) + sqr(distVectorToGoal.getY()));
+		// d = - Vi^2 / 2a   if Vf = 0
+		const float startLinearDecelerationDistance = sqr(prefSpeed_) / (2*maxAccel_);
+		const float startLinearDecelerationTime = prefSpeed_ / maxAccel_;
 
-		if (sqr(prefSpeed_ * simulator_->timeStep_) > distSqToGoal) {
-			prefVelocity_ = (goalPosition - position_) / simulator_->timeStep_;
+		prefVelocity_ = normalize(distVectorToGoal) * prefSpeed_;
+		if (distToGoal < startLinearDecelerationDistance)
+		{
+//            const float timeRemaining = abs(velocity_) / maxAccel_;
+            prefVelocity_ = prefVelocity_ * (distToGoal/startLinearDecelerationDistance);
 		}
-		else {
-			prefVelocity_ = prefSpeed_ * (goalPosition - position_) / std::sqrt(distSqToGoal);
+		else
+		{
+			prefVelocity_ = normalize(goalPosition - position_) * prefSpeed_;
+			// prefVelocity_ = (goalPosition - position_) / simulator_->timeStep_;
 		}
+
+
+//    prefVelocity_ = (distToGoal / 8) * normalize(goalPosition - position_) * prefSpeed_;
+//        const Vector2 goalPosition = simulator_->goals_[goalNo_]->position_;
+//        const float distSqToGoal = absSq(goalPosition - position_);
+//
+//        if (sqr(prefSpeed_ * simulator_->timeStep_) > distSqToGoal) {
+//            prefVelocity_ = (goalPosition - position_) / simulator_->timeStep_;
+//        }
+//        else {
+//            prefVelocity_ = prefSpeed_ * (goalPosition - position_) / std::sqrt(distSqToGoal);
+//        }
+		
+		// if (sqr(prefSpeed_ * simulator_->timeStep_) > distSqToGoal) {
+		// 	prefVelocity_ = (goalPosition - position_) / simulator_->timeStep_;
+		// 	// TODO: Update to include accel https://github.com/UBC-Thunderbots/Software/blob/1d3e52972f0f28229f6a7c441635265aa89c2bb8/src/software/jetson_nano/primitive_executor.cpp#L36
+		// }
+		// else {
+		// 	prefVelocity_ = prefSpeed_ * (goalPosition - position_) / std::sqrt(distSqToGoal);
+		// }
 	}
 
 #if HRVO_DIFFERENTIAL_DRIVE
@@ -425,7 +455,14 @@ namespace hrvo {
 			velocity_ = newVelocity_;
 		}
 		else {
+//			Vector2 oldVel = velocity_;
 			velocity_ = (1.0f - (maxAccel_ * simulator_->timeStep_ / dv)) * velocity_ + (maxAccel_ * simulator_->timeStep_ / dv) * newVelocity_;
+//			Vector2 dvVec = velocity_ - oldVel;
+			
+//			const Vector2 goalPosition = simulator_->goals_[goalNo_]->position_;
+//			const Vector2 distVectorToGoal = goalPosition - position_;
+//			const float distToGoal = sqrt(sqr(distVectorToGoal.getX()) + sqr(distVectorToGoal.getY()));
+//			std::cout << "distToGoal=" << distToGoal << " dv=" << dv <<  " Actualdv=" << abs(dvVec) << " newVelocity_=" << velocity_ << " maxAccel/frame=" << maxAccel_  * simulator_->timeStep_ << std::endl;
 		}
 
 		position_ += velocity_ * simulator_->timeStep_;

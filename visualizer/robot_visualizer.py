@@ -110,12 +110,14 @@ def animate_robots(robot_pos_df, gif_output_file=None):
     # plt.subplots_adjust(left=0.3)
     time_text = ax.text(0.5, 0.2, '', transform=plt.gcf().transFigure)
     robot_id_text = ax.text(0.5, 0.1, '', transform=plt.gcf().transFigure)
-
+     
     # set-up robot circles
+    initial_frame = robot_pos_df[robot_pos_df['frame'] == 0]
     robot_list = []
     line_list = []
-    for _ in range(num_robots):
-        robot = Circle((0, 0), robot_radius, facecolor='aqua', edgecolor='black')
+    for robot_id in range(num_robots):
+        radius = float(initial_frame[initial_frame['robot_id'] == robot_id]['radius'].head(1))
+        robot = Circle((0, 0), radius, facecolor='aqua', edgecolor='black')
         robot_list.append(robot)
         line_obj = ax.plot([], [], linestyle='--', alpha=default_line_alpha)[0]
         line_list.append(line_obj)
@@ -141,7 +143,7 @@ def animate_robots(robot_pos_df, gif_output_file=None):
         print(f'Saved gif of robots to {gif_output_file}')
 
 
-file_name = 'test_div_b_field_4_robots'
+file_name = '5_robots_in_vertical_line'
 file_location = f'visualizer/data/{file_name}.csv'
-df = pd.read_csv(file_location, skiprows=3)
+df = pd.read_csv(file_location) #, skiprows=3)
 animate_robots(df, f'visualizer/gif/{file_name}.gif')

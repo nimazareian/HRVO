@@ -177,6 +177,7 @@ namespace hrvo {
 		 */
 		void update();
 
+    public: // A
 		Simulator *const simulator_;
 		Vector2 newVelocity_;
 		Vector2 position_;

@@ -188,6 +188,8 @@ namespace hrvo {
 		 */
 		float getAgentPrefSpeed(std::size_t agentNo) const;
 
+        Vector2 getAgentPrefVelocity(std::size_t agentNo) const;
+
 		/**
 		 * \brief      Returns the radius of a specified agent.
 		 * \param[in]  agentNo  The number of the agent whose radius is to be retrieved.
@@ -427,9 +429,12 @@ namespace hrvo {
 		 */
 		void setTimeStep(float timeStep) { timeStep_ = timeStep; }
 
-	private:
+//	private:
+    public:
 		Simulator(const Simulator &other);
 		Simulator &operator=(const Simulator &other);
+
+
 
 		Agent *defaults_;
 		KdTree *kdTree_;
