@@ -304,6 +304,12 @@ namespace hrvo {
 
 	void Agent::computePreferredVelocity()
 	{
+		if(prefSpeed_ <= 0.1f || maxAccel_ <= 0.1f)
+		{
+			prefVelocity_ = Vector2(0.f, 0.f);
+			return;
+		}
+
 		const Vector2 goalPosition = simulator_->goals_[goalNo_]->position_;
 		const Vector2 distVectorToGoal = goalPosition - position_;
 		const float distToGoal = sqrt(sqr(distVectorToGoal.getX()) + sqr(distVectorToGoal.getY()));
@@ -314,7 +320,8 @@ namespace hrvo {
 		prefVelocity_ = normalize(distVectorToGoal) * prefSpeed_;
 		if (distToGoal < startLinearDecelerationDistance)
 		{
-//            const float timeRemaining = abs(velocity_) / maxAccel_;
+			// the slope of the velocity graph reaching the destination is -maxAccel
+			// which creates a linear line v = -maxAccel*t the distance travelled with the changing velocity will be 
             prefVelocity_ = prefVelocity_ * (distToGoal/startLinearDecelerationDistance);
 		}
 		else

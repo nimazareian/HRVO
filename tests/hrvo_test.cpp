@@ -18,7 +18,7 @@ class HRVOTest : public ::testing::Test
         : simulator()
     {
 	    simulator.setTimeStep(1.f/30);
-    	simulator.setAgentDefaults(1.f, 10, ROBOT_RADIUS * RADIUS_SCALE, ROBOT_RADIUS * RADIUS_SCALE, /*prefSpeed=*/3.5f, /*maxSpeed=*/4.825f, /*uncertaintyOffset=*/0.f, /*maxAccel=*/3.28f);
+    	simulator.setAgentDefaults(3.f, 30, ROBOT_RADIUS * RADIUS_SCALE, ROBOT_RADIUS * RADIUS_SCALE, /*prefSpeed=*/3.5f, /*maxSpeed=*/4.825f, /*uncertaintyOffset=*/0.f, /*maxAccel=*/3.28f);
     }
 
     void TearDown() override
@@ -139,7 +139,7 @@ class HRVOTest : public ::testing::Test
             prev_frame_time = time;
             simulator.doStep();
         }
-        while (prev_frame_time < 15.f); //!simulator.haveReachedGoals());
+        while (prev_frame_time < 8.f); //!simulator.haveReachedGoals());
         output_file.close();
     }
 };
@@ -188,3 +188,5 @@ TEST_F(HRVOTest, 5_robots_in_vertical_line) {
 TEST_F(HRVOTest, 1_robot_in_line) {
     simulator.addAgent(Vector2(-4.f, 0.f), simulator.addGoal(Vector2(4.f,0.f)));
 }
+
+// TODO: Test with changing goal position
