@@ -37,6 +37,35 @@
 
 #include "Goal.h"
 
+#include <utility>
+
 namespace hrvo {
-	Goal::Goal(const Vector2 &position) : position_(position) { }
+	Goal::Goal(const Vector2 &position) : position_(position) {
+        positions_.push_back(position);
+    }
+	Goal::Goal(std::vector<Vector2> positions) : positions_(std::move(positions)) { }
+
+    Vector2 Goal::getNextGoalPostion() {
+        currGoalIndex++;
+        return getCurrentGoalPosition();
+    }
+
+    Vector2 Goal::getCurrentGoalPosition() {
+        if (currGoalIndex >= positions_.size())
+        {
+            return Vector2();
+        }
+        else
+        {
+            return positions_[currGoalIndex];
+        }
+    }
+
+    bool Goal::isGoingToFinalGoal() {
+        if(currGoalIndex >= positions_.size() - 1)
+        {
+            return true;
+        }
+        return false;
+    }
 }

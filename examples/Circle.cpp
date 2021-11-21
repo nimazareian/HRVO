@@ -84,7 +84,7 @@ int main()
     const Vector2 goal_offset = Vector2(8.f, 0);
     const Vector2 robot_offset = Vector2(0.f, -ROBOT_RADIUS * 2.5f);
     for (std::size_t i = 0; i < NUM_ROBOTS; ++i) {
-		const Vector2 position = -1*(goal_offset / 2) + (static_cast<float>(i) * robot_offset);
+		const Vector2 position = -1*(goal_offset / 2) + Vector2(0.f, 2.8f) + (static_cast<float>(i) * robot_offset);
 		simulator.addAgent(position, simulator.addGoal(position + goal_offset));
 	}
 

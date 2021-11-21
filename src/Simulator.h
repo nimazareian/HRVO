@@ -40,6 +40,8 @@
 
 #include <limits>
 #include <vector>
+#include <Goal.h>
+
 
 #include "Export.h"
 #include "Vector2.h"
@@ -106,6 +108,8 @@ namespace hrvo {
 		 * \return     The number of the goal.
 		 */
 		std::size_t addGoal(const Vector2 &position);
+
+        std::size_t addGoalPositions(const std::vector<Vector2> &positions);
 
 		/**
 		 * \brief  Performs a simulation step; updates the orientation, position, and velocity of each agent, and the progress of each towards its goal.
@@ -316,6 +320,8 @@ namespace hrvo {
 		 */
 		void setAgentGoal(std::size_t agentNo, std::size_t goalNo);
 
+        void setAgentGoalPosition(size_t agentNo, Vector2 position);
+
 		/**
 		 * \brief      Sets the goal radius of a specified agent.
 		 * \param[in]  agentNo     The number of the agent whose goal radius is to be modified.
@@ -447,7 +453,7 @@ namespace hrvo {
 		friend class Agent;
 		friend class Goal;
 		friend class KdTree;
-	};
+    };
 }
 
 #endif /* HRVO_SIMULATOR_H_ */

@@ -139,7 +139,7 @@ class HRVOTest : public ::testing::Test
             prev_frame_time = time;
             simulator.doStep();
         }
-        while (prev_frame_time < 8.f); //!simulator.haveReachedGoals());
+        while (!simulator.haveReachedGoals() && prev_frame_time < 15.f); //);
         output_file.close();
     }
 };
@@ -187,6 +187,10 @@ TEST_F(HRVOTest, 5_robots_in_vertical_line) {
 
 TEST_F(HRVOTest, 1_robot_in_line) {
     simulator.addAgent(Vector2(-4.f, 0.f), simulator.addGoal(Vector2(4.f,0.f)));
+}
+
+TEST_F(HRVOTest, 1_robot_multiple_goals) {
+    simulator.addAgent(Vector2(-4.f, -4.f), simulator.addGoalPositions({Vector2(4.f, -4.f), Vector2(4.f, 4.f), Vector2(-4.f, 4.f), Vector2(-4.f, -4.f)}));
 }
 
 // TODO: Test with changing goal position

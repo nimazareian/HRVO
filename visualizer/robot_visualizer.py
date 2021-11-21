@@ -101,7 +101,7 @@ def animate_robots(robot_pos_df, gif_output_file=None):
 
     # set up plot
     fig = plt.figure()
-    fig.suptitle('5 robots in a line w/ infinite acceleration')
+    fig.suptitle(file_name)
     ax = fig.add_subplot(111, autoscale_on=False, xlim=(min_robot_x_pos - x_offset, max_robot_x_pos + x_offset), 
                                                   ylim=(min_robot_y_pos - y_offset, max_robot_y_pos + y_offset))
     ax.set_aspect('equal')
@@ -143,7 +143,7 @@ def animate_robots(robot_pos_df, gif_output_file=None):
         print(f'Saved gif of robots to {gif_output_file}')
 
 
-file_name = '5_robots_in_vertical_line'
+file_name = '1_robot_multiple_goals'
 file_location = f'visualizer/data/{file_name}.csv'
 df = pd.read_csv(file_location) #, skiprows=3)
 animate_robots(df, f'visualizer/gif/{file_name}.gif')

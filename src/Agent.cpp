@@ -310,7 +310,7 @@ namespace hrvo {
 			return;
 		}
 
-		const Vector2 goalPosition = simulator_->goals_[goalNo_]->position_;
+		const Vector2 goalPosition = simulator_->goals_[goalNo_]->getCurrentGoalPosition();
 		const Vector2 distVectorToGoal = goalPosition - position_;
 		const float distToGoal = sqrt(sqr(distVectorToGoal.getX()) + sqr(distVectorToGoal.getY()));
 		// d = - Vi^2 / 2a   if Vf = 0
@@ -475,8 +475,18 @@ namespace hrvo {
 		position_ += velocity_ * simulator_->timeStep_;
 #endif /* HRVO_DIFFERENTIAL_DRIVE */
 
-		if (absSq(simulator_->goals_[goalNo_]->position_ - position_) < goalRadius_ * goalRadius_) {
-			reachedGoal_ = true;
+		if (absSq(simulator_->goals_[goalNo_]->getCurrentGoalPosition() - position_) < goalRadius_ * goalRadius_) {
+            // Is at current goal position
+            if (simulator_->goals_[goalNo_]->isGoingToFinalGoal())
+            {
+                reachedGoal_ = true;
+            }
+            else
+            {
+                simulator_->goals_[goalNo_]->getNextGoalPostion();
+                reachedGoal_ = false;
+                simulator_->reachedGoals_ = false;
+            }
 		}
 		else {
 			reachedGoal_ = false;

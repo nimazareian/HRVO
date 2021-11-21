@@ -104,6 +104,14 @@ namespace hrvo {
 		return goals_.size() - 1;
 	}
 
+    std::size_t Simulator::addGoalPositions(const std::vector<Vector2> &positions)
+    {
+        Goal *const goal = new Goal(positions);
+        goals_.push_back(goal);
+
+        return goals_.size() - 1;
+    }
+
 	void Simulator::doStep()
 	{
 		if (kdTree_ == NULL) {
@@ -263,6 +271,11 @@ namespace hrvo {
 	void Simulator::setAgentGoal(std::size_t agentNo, std::size_t goalNo)
 	{
 		agents_[agentNo]->goalNo_ = goalNo;
+	}
+
+	void Simulator::setAgentGoalPosition(std::size_t agentNo, Vector2 position)
+	{
+        goals_[agentNo]->position_ = position;
 	}
 
 	void Simulator::setAgentGoalRadius(std::size_t agentNo, float goalRadius)

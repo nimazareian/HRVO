@@ -38,6 +38,7 @@
 #ifndef HRVO_GOAL_H_
 #define HRVO_GOAL_H_
 
+#include <vector>
 #include "Vector2.h"
 
 namespace hrvo {
@@ -54,8 +55,18 @@ namespace hrvo {
 		 * \param[in]  position  The position of this goal.
 		 */
 		explicit Goal(const Vector2 &position);
+		explicit Goal(std::vector<Vector2> positions);
 
+    public:
 		Vector2 position_;
+        // Goal positions in order Could be Queue
+        std::vector<Vector2> positions_;
+        int currGoalIndex = 0;
+
+        Vector2 getNextGoalPostion();
+        Vector2 getCurrentGoalPosition();
+        bool isGoingToFinalGoal();
+
 
 		friend class Agent;
 		friend class Simulator;
